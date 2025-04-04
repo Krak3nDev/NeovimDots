@@ -53,7 +53,10 @@ return {
 
 					-- gd / gr / gI / gy / gD
 					map("n", "gd", vim.lsp.buf.definition, "Go to Definition")
-					map("n", "gr", vim.lsp.buf.references, "Go to References")
+					map("n", "gr", function()
+						require("telescope.builtin").lsp_references()
+					end, "Telescope LSP References")
+
 					map("n", "gI", vim.lsp.buf.implementation, "Go to Implementation")
 					map("n", "gy", vim.lsp.buf.type_definition, "Go to Type Definition")
 					map("n", "gD", vim.lsp.buf.declaration, "Go to Declaration")
@@ -71,7 +74,7 @@ return {
 					-- <leader>cC : Refresh (and optionally run) CodeLens
 					map("n", "<leader>cC", function()
 						vim.lsp.codelens.refresh()
-						-- If you want to automatically run them after refresh:
+						-- Если хотите автоматически запустить их после рефреша:
 						-- vim.lsp.codelens.run()
 					end, "Refresh CodeLens")
 
@@ -81,63 +84,66 @@ return {
 							vim.log.levels.INFO)
 					end, "Rename File")
 
-					-- <leader>cr : Rename symbol
-					map("n", "<leader>cr", vim.lsp.buf.rename, "Rename Symbol")
+					-- <leader>cr : Rename
+					map("n", "<leader>cr", vim.lsp.buf.rename, "Rename")
 
 					-- <leader>cA : Source Action
 					map("n", "<leader>cA", function()
 						vim.lsp.buf.code_action({ context = { only = { "source" } }, apply = true })
 					end, "Source Action")
 
+
 					-- ]] / [[ / <A-n> / <A-p> : Next/Prev Reference (placeholder)
 					map("n", "]]", function()
 						vim.notify("Next reference not implemented (use quickfix or a plugin)",
 							vim.log.levels.INFO)
 					end, "Next Reference")
-
 					map("n", "[[", function()
 						vim.notify(
-						"Previous reference not implemented (use quickfix or a plugin)",
+							"Previous reference not implemented (use quickfix or a plugin)",
 							vim.log.levels.INFO)
 					end, "Previous Reference")
-
 					map("n", "<A-n>", function()
 						vim.notify("Next reference not implemented (use quickfix or a plugin)",
 							vim.log.levels.INFO)
 					end, "Next Reference")
-
 					map("n", "<A-p>", function()
 						vim.notify(
-						"Previous reference not implemented (use quickfix or a plugin)",
+							"Previous reference not implemented (use quickfix or a plugin)",
 							vim.log.levels.INFO)
 					end, "Previous Reference")
 				end,
 			})
 
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
 			-- Configure servers via mason-lspconfig.setup_handlers()
 			require("mason-lspconfig").setup_handlers({
 				-- 1) Default handler for any server not specified below
 				function(server_name)
-					lspconfig[server_name].setup({})
+					lspconfig[server_name].setup({
+						capabilities = capabilities,
+					})
 				end,
 
-				-- 2) Pyright: Use Ruff for organizeImports and lint
-				["pyright"] = function()
-					lspconfig.pyright.setup({
+				-- 2) BasePyright (так вы его называете в mason-lspconfig)
+
+				["basedpyright"] = function()
+					lspconfig.basedpyright.setup({
+						capabilities = capabilities,
 						settings = {
-							pyright = {
-								disableOrganizeImports = true, -- Delegates organize imports to Ruff
-							},
-							python = {
+							basedpyright = {
+								typeCheckingMode = "basic",
 								analysis = {
-									ignore = { "*" }, -- Delegate linting to Ruff
-									typeCheckingMode = "strict",
-									autoImportCompletions = true,
+									reportUnannotatedClassAttribute = false,
+									diagnosticMode = "workspace",
+									autoSearchPaths = true,
 								},
 							},
 						},
 					})
 				end,
+
 
 				-- 3) Ruff
 				["ruff"] = function()
@@ -151,14 +157,14 @@ return {
 				end,
 			})
 
-			-- Automatically apply "Fix all" and "Organize imports" on save for Python
+			-- Automatically apply "Fix all", "Organize imports", on save for Python
 			vim.api.nvim_create_autocmd("BufWritePre", {
 				pattern = { "*.py" },
 				desc = "Ruff: Fix all & Organize imports on save",
 				callback = function()
 					vim.lsp.buf.code_action({
 						context = {
-							only = { "source.fixAll", "source.organizeImports" },
+							only = { "source.fixAll", "source.organizeImports", },
 						},
 						apply = true, -- Apply automatically
 					})
@@ -167,4 +173,3 @@ return {
 		end,
 	},
 }
-

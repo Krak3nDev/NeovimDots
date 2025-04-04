@@ -13,10 +13,9 @@ return {
 		},
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "pyright", "lua_ls", "ruff" },
+				ensure_installed = { "basedpyright", "lua_ls", "ruff" },
 				automatic_installation = true,
 			})
 		end,
 	},
 }
-

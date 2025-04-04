@@ -67,7 +67,7 @@ return {
 
 				-- Neogit bindings
 				{
-					"<leader>g",
+					"<leader>NG",
 					function()
 						require("neogit").open() -- Open Neogit status
 					end,

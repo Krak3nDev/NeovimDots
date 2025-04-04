@@ -32,6 +32,7 @@ return {
 					"%.git",
 					"%.idea",
 				},
+				path_display = { "smart" }
 			})
 
 			telescope.setup({
@@ -50,14 +51,16 @@ return {
 						respect_gitignore = false,
 						mappings = {
 							["n"] = {
-
 								["H"] = fb_actions.toggle_hidden,
-
 								["d"] = fb_actions.change_cwd,
+								["c"] = fb_actions.create,
+								["D"] = fb_actions.remove
 							},
 							["i"] = {
 								["<C-h>"] = fb_actions.toggle_hidden,
 								["<C-d>"] = fb_actions.change_cwd,
+								["<C-c>"] = fb_actions.create,
+								["<C-D>"] = fb_actions.remove,
 							},
 						},
 					},
